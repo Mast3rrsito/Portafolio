@@ -1,107 +1,184 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Rubik 3D</title>
-  <style>
-    body { margin: 0; overflow: hidden; background: #0a0a0a; }
-  </style>
+<meta charset="UTF-8">
+<title>Rubik 3x3</title>
+<style>
+  body { margin:0; overflow:hidden; background:#111; }
+</style>
 </head>
 <body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
+
+//////////////////////////
+// ESCENA
+//////////////////////////
+
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera(
-  75,
+  60,
   window.innerWidth / window.innerHeight,
   0.1,
   1000
 );
-camera.position.z = 5;
+camera.position.set(6,6,6);
+camera.lookAt(0,0,0);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-//////////////////////
-// ILUMINACIÓN
-//////////////////////
+//////////////////////////
+// ILUMINACIÓN PRO
+//////////////////////////
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-scene.add(ambientLight);
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 5, 5);
-scene.add(directionalLight);
+const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+light1.position.set(5,10,7);
+scene.add(light1);
 
-//////////////////////
-// CUBO NEGRO METÁLICO
-//////////////////////
+//////////////////////////
+// CREAR RUBIK 3x3
+//////////////////////////
 
-const geometry = new THREE.BoxGeometry(2, 2, 2);
+const rubik = new THREE.Group();
+scene.add(rubik);
+
+const pieceSize = 0.95;
+const offset = 1;
 
 const material = new THREE.MeshStandardMaterial({
-  color: 0x111111,
+  color: 0x222222,
   metalness: 1,
-  roughness: 0.2
+  roughness: 0.25
 });
 
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+let pieces = [];
 
-// Líneas tipo Rubik
-const edges = new THREE.EdgesGeometry(geometry);
-const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-const wireframe = new THREE.LineSegments(edges, lineMaterial);
-cube.add(wireframe);
+for(let x=-1;x<=1;x++){
+  for(let y=-1;y<=1;y++){
+    for(let z=-1;z<=1;z++){
 
-//////////////////////
-// SEGUIR EL RATÓN
-//////////////////////
+      const geo = new THREE.BoxGeometry(pieceSize,pieceSize,pieceSize);
+      const cube = new THREE.Mesh(geo, material.clone());
 
-let mouseX = 0;
-let mouseY = 0;
+      cube.position.set(x*offset,y*offset,z*offset);
 
-let targetRotationX = 0;
-let targetRotationY = 0;
+      // bordes
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(
+        edges,
+        new THREE.LineBasicMaterial({color:0x000000})
+      );
+      cube.add(line);
 
-document.addEventListener("mousemove", (event) => {
-  mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-  mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+      rubik.add(cube);
+      pieces.push(cube);
+    }
+  }
+}
 
-  targetRotationY = mouseX * 0.8;
-  targetRotationX = mouseY * 0.8;
+//////////////////////////
+// SEGUIR RATÓN SUAVE
+//////////////////////////
+
+let targetX = 0;
+let targetY = 0;
+
+document.addEventListener("mousemove", e => {
+  const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  const mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+
+  targetY = mouseX * 0.6;
+  targetX = mouseY * 0.6;
 });
 
-//////////////////////
-// ANIMACIÓN SUAVE
-//////////////////////
+//////////////////////////
+// ANIMACIÓN GIRO DE CARA
+//////////////////////////
 
-function animate() {
+let rotating = false;
+let rotationGroup = new THREE.Group();
+
+function rotateFace(axis, layer){
+
+  if(rotating) return;
+  rotating = true;
+
+  rotationGroup = new THREE.Group();
+  rubik.add(rotationGroup);
+
+  pieces.forEach(piece => {
+    if(Math.round(piece.position[axis]) === layer){
+      rotationGroup.attach(piece);
+    }
+  });
+
+  let angle = 0;
+
+  function animateRotation(){
+    angle += 0.08;
+
+    rotationGroup.rotation[axis] = angle;
+
+    if(angle >= Math.PI/2){
+      rotationGroup.rotation[axis] = Math.PI/2;
+
+      while(rotationGroup.children.length > 0){
+        rubik.attach(rotationGroup.children[0]);
+      }
+
+      rubik.remove(rotationGroup);
+      rotating = false;
+      return;
+    }
+
+    requestAnimationFrame(animateRotation);
+  }
+
+  animateRotation();
+}
+
+// gira una cara cada 3 segundos
+setInterval(()=>{
+  const axes = ["x","y","z"];
+  const axis = axes[Math.floor(Math.random()*3)];
+  const layer = [-1,0,1][Math.floor(Math.random()*3)];
+  rotateFace(axis, layer);
+},3000);
+
+//////////////////////////
+// LOOP PRINCIPAL
+//////////////////////////
+
+function animate(){
   requestAnimationFrame(animate);
 
-  // Interpolación suave (lerp)
-  cube.rotation.y += (targetRotationY - cube.rotation.y) * 0.08;
-  cube.rotation.x += (targetRotationX - cube.rotation.x) * 0.08;
+  rubik.rotation.y += (targetY - rubik.rotation.y) * 0.05;
+  rubik.rotation.x += (targetX - rubik.rotation.x) * 0.05;
 
-  renderer.render(scene, camera);
+  renderer.render(scene,camera);
 }
 
 animate();
 
-//////////////////////
+//////////////////////////
 // RESPONSIVE
-//////////////////////
+//////////////////////////
 
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+window.addEventListener("resize", ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 </script>
 
 </body>
