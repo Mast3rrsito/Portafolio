@@ -2,9 +2,17 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Rubik 3x3</title>
+<title>Rubik 3x3 Premium</title>
 <style>
-  body { margin:0; overflow:hidden; background:#111; }
+  body {
+    margin:0;
+    overflow:hidden;
+    background: linear-gradient(
+      to bottom right,
+      #1a1a1a,
+      #050505
+    );
+  }
 </style>
 </head>
 <body>
@@ -18,7 +26,6 @@
 //////////////////////////
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera(
   60,
@@ -29,20 +36,31 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(6,6,6);
 camera.lookAt(0,0,0);
 
-const renderer = new THREE.WebGLRenderer({ antialias:true });
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
 document.body.appendChild(renderer.domElement);
 
 //////////////////////////
-// ILUMINACIÓN PRO
+// ILUMINACIÓN MEJORADA
 //////////////////////////
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+// Luz ambiente suave
+const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+scene.add(ambient);
 
-const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
-light1.position.set(5,10,7);
-scene.add(light1);
+// Luz principal desde la IZQUIERDA
+const mainLight = new THREE.DirectionalLight(0xffffff, 2);
+mainLight.position.set(-10, 8, 5);
+scene.add(mainLight);
+
+// Luz secundaria suave desde atrás
+const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+backLight.position.set(5, -5, -5);
+scene.add(backLight);
 
 //////////////////////////
 // CREAR RUBIK 3x3
@@ -55,9 +73,9 @@ const pieceSize = 0.95;
 const offset = 1;
 
 const material = new THREE.MeshStandardMaterial({
-  color: 0x222222,
+  color: 0x1a1a1a,
   metalness: 1,
-  roughness: 0.25
+  roughness: 0.18
 });
 
 let pieces = [];
@@ -71,7 +89,6 @@ for(let x=-1;x<=1;x++){
 
       cube.position.set(x*offset,y*offset,z*offset);
 
-      // bordes
       const edges = new THREE.EdgesGeometry(geo);
       const line = new THREE.LineSegments(
         edges,
@@ -125,7 +142,6 @@ function rotateFace(axis, layer){
 
   function animateRotation(){
     angle += 0.08;
-
     rotationGroup.rotation[axis] = angle;
 
     if(angle >= Math.PI/2){
@@ -146,7 +162,6 @@ function rotateFace(axis, layer){
   animateRotation();
 }
 
-// gira una cara cada 3 segundos
 setInterval(()=>{
   const axes = ["x","y","z"];
   const axis = axes[Math.floor(Math.random()*3)];
