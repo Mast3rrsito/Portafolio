@@ -3,26 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <title>Rubik 3x3 Premium</title>
+
 <style>
   body {
     margin:0;
     overflow:hidden;
-    background: linear-gradient(
-      to bottom right,
-      #1a1a1a,
-      #050505
-    );
+    background: linear-gradient(to bottom right,#1a1a1a,#050505);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  /* CONTENEDOR DEL TEXTO */
+  .scrolling-text {
+    position:absolute;
+    top:0;
+    width:100%;
+    height:120px;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    z-index:10;
+    pointer-events:none;
+  }
+
+  .scrolling-text .rail {
+    display:flex;
+  }
+
+  .scrolling-text .rail h4 {
+    white-space:nowrap;
+    font-size:60px;
+    font-weight:900;
+    margin:0 40px 0 0;
+    color:#ffffff;
+    opacity:0.08; /* estilo premium sutil */
+  }
+
+  canvas {
+    display:block;
   }
 </style>
 </head>
 <body>
 
+<!-- TEXTO SUPERIOR -->
+<div class="scrolling-text">
+  <div class="rail">
+    <h4>Rubik Black Edition</h4>
+    <h4>Silky Smooth 3D Motion</h4>
+    <h4>Interactive Experience</h4>
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Observer.min.js"></script>
+
+<!-- THREE -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
 
 //////////////////////////
-// ESCENA
+// GSAP SCROLLING LOOP
+//////////////////////////
+
+gsap.registerPlugin(Observer);
+
+const scrollingText = gsap.utils.toArray('.rail h4');
+
+const tlText = gsap.to(scrollingText, {
+  xPercent: -100,
+  repeat: -1,
+  duration: 20,
+  ease: "linear"
+});
+
+//////////////////////////
+// THREE SCENE
 //////////////////////////
 
 const scene = new THREE.Scene();
@@ -41,29 +98,24 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.physicallyCorrectLights = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
-
 document.body.appendChild(renderer.domElement);
 
 //////////////////////////
-// ILUMINACIÓN MEJORADA
+// ILUMINACIÓN IZQUIERDA PRO
 //////////////////////////
 
-// Luz ambiente suave
-const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-scene.add(ambient);
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
-// Luz principal desde la IZQUIERDA
-const mainLight = new THREE.DirectionalLight(0xffffff, 2);
-mainLight.position.set(-10, 8, 5);
+const mainLight = new THREE.DirectionalLight(0xffffff, 2.5);
+mainLight.position.set(-12, 8, 5);
 scene.add(mainLight);
 
-// Luz secundaria suave desde atrás
-const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-backLight.position.set(5, -5, -5);
-scene.add(backLight);
+const rimLight = new THREE.DirectionalLight(0xffffff, 0.6);
+rimLight.position.set(5, -5, -5);
+scene.add(rimLight);
 
 //////////////////////////
-// CREAR RUBIK 3x3
+// RUBIK 3x3
 //////////////////////////
 
 const rubik = new THREE.Group();
@@ -86,7 +138,6 @@ for(let x=-1;x<=1;x++){
 
       const geo = new THREE.BoxGeometry(pieceSize,pieceSize,pieceSize);
       const cube = new THREE.Mesh(geo, material.clone());
-
       cube.position.set(x*offset,y*offset,z*offset);
 
       const edges = new THREE.EdgesGeometry(geo);
@@ -103,7 +154,7 @@ for(let x=-1;x<=1;x++){
 }
 
 //////////////////////////
-// SEGUIR RATÓN SUAVE
+// SEGUIR RATÓN
 //////////////////////////
 
 let targetX = 0;
@@ -118,14 +169,13 @@ document.addEventListener("mousemove", e => {
 });
 
 //////////////////////////
-// ANIMACIÓN GIRO DE CARA
+// GIRO DE CARAS
 //////////////////////////
 
 let rotating = false;
 let rotationGroup = new THREE.Group();
 
 function rotateFace(axis, layer){
-
   if(rotating) return;
   rotating = true;
 
@@ -170,7 +220,7 @@ setInterval(()=>{
 },3000);
 
 //////////////////////////
-// LOOP PRINCIPAL
+// LOOP
 //////////////////////////
 
 function animate(){
@@ -183,10 +233,6 @@ function animate(){
 }
 
 animate();
-
-//////////////////////////
-// RESPONSIVE
-//////////////////////////
 
 window.addEventListener("resize", ()=>{
   camera.aspect = window.innerWidth/window.innerHeight;
