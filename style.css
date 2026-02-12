@@ -76,3 +76,39 @@ body {
 .glow-btn:active {
   transform: translate(-50%, -50%) scale(0.98);
 }
+
+/* TEXTO PRINCIPAL PORTFOLIO */
+
+.hero-text {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.hero-text h1 {
+  margin: 0;
+  font-size: 84px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 2px;
+}
+
+.hero-text .blue {
+  color: #3aa0ff;
+}
+
+.hero-text .white {
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-text h1 {
+    font-size: 52px;
+  }
+}
+
