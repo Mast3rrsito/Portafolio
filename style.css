@@ -35,34 +35,49 @@ body {
   opacity: 0.06;
 }
 
-/* BOTÓN CENTRADO PREMIUM */
+/* BOTÓN PREMIUM CENTRADO */
 
 .glow-btn {
   position: absolute;
-  top: 50%;
+  top: 65%;
   left: 50%;
   transform: translate(-50%, -50%);
   
-  padding: 22px 90px;
-  font-size: 26px;
+  padding: 20px 80px;
+  font-size: 22px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 
   background: #ffffff;
-  color: #4a4a4a;
+  color: #6b6b6b;
 
   border: none;
-  border-radius: 60px;
+  border-radius: 999px;
 
   cursor: pointer;
   z-index: 20;
 
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.4),
-    0 0 20px rgba(255,255,255,0.15);
+  transition: all 0.35s cubic-bezier(.22,.61,.36,1);
 
-  transition: all 0.3s ease;
+  /* sombra elegante */
+  box-shadow:
+    0 8px 25px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(255,255,255,0.2) inset;
 }
+
+/* Hover más limpio */
+.glow-btn:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow:
+    0 15px 40px rgba(0,0,0,0.55),
+    0 0 25px rgba(255,255,255,0.3);
+}
+
+/* Click */
+.glow-btn:active {
+  transform: translate(-50%, -50%) scale(0.98);
+}
+
 
 /* Hover elegante */
 .glow-btn:hover {
