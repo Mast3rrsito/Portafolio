@@ -1,43 +1,72 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Rubik Black Edition</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Master</title>
+    <meta name="description" content="A unique portfolio website with scrambled text animations.">
+    <meta name="keywords" content="portfolio, developer, design, animation, react">
+    
+    <!-- React & Babel -->
+    <script src="https://resource.trickle.so/vendor_lib/unpkg/react@18/umd/react.production.min.js"></script>
+    <script src="https://resource.trickle.so/vendor_lib/unpkg/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://resource.trickle.so/vendor_lib/unpkg/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <link href="https://resource.trickle.so/vendor_lib/unpkg/lucide-static@0.516.0/font/lucide.css" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style type="text/tailwindcss">
+    @layer theme {
+        .font-code {
+            font-family: 'Fira Code', 'Cascadia Code', monospace;
+        }
+        .text-neon-blue {
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+        .border-glow:hover {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    @layer utilities {
+        .bg-custom-gradient {
+            background: linear-gradient(45deg, #020617 0%, #000000 60%);
+        }
+        .animate-scan {
+            animation: scanline 8s linear infinite;
+        }
+        @keyframes scanline {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        color: white;
+        overflow-x: hidden;
+    }
+    </style>
 </head>
-<body>
-
-  <!-- TEXTO SUPERIOR -->
-<div class="scrolling-text">
-  <div class="rail">
-    <h4>Rubik Black Edition</h4>
-    <h4>Premium 3D Experience</h4>
-    <h4>Metallic Motion Design</h4>
-    <h4>Interactive WebGL</h4>
-  </div>
-</div>
-
-<button class="glow-btn">View</button>
-
-
-  <!-- THREE CANVAS se crea automáticamente -->
-
-  <!-- LIBRERÍAS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Observer.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <!-- JS -->
-  <script src="textAnimation.js"></script>
-  <script src="rubik.js"></script>
-
-  <div class="hero-text">
-  <h1>
-    <span class="blue" id="text-portfolio"></span><br>
-    <span class="white" id="text-master"></span>
-  </h1>
-</div>
-<script src="scrambleText.js"></script>
-
+<body class="bg-black min-h-screen font-code">
+    <div id="root"></div>
+    
+    <!-- Components -->
+    <script type="text/babel" src="components/ScrambleText.js"></script>
+    <script type="text/babel" src="components/MenuButtons.js"></script>
+    <script type="text/babel" src="components/OptionSquare.js"></script>
+    <script type="text/babel" src="components/TopNav.js"></script>
+    
+    <!-- Main App -->
+    <script type="text/babel" src="app.js"></script>
 </body>
 </html>
